@@ -1,0 +1,12 @@
+{
+    "nrf5-vscode.seggerEmbeddedStudioPath": "C:\\Program Files\\SEGGER\\SEGGER Embedded Studio 8.24",
+    "nrf5-vscode.jLinkPath": "C:\\Program Files\\SEGGER\\JLink_V874",
+    "files.associations": {
+        "usb_device.h": "c",
+        "printk.h": "c",
+        "device.h": "c",
+        "types.h": "c",
+        "util.h": "c",
+        "hci.h": "c"
+    }
+}
