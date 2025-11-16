@@ -7,6 +7,8 @@
         "device.h": "c",
         "types.h": "c",
         "util.h": "c",
-        "hci.h": "c"
+        "hci.h": "c",
+        "pwm.h": "c",
+        "kernel.h": "c"
     }
 }
