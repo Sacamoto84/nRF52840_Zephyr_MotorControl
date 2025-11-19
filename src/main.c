@@ -1,26 +1,7 @@
-#include <zephyr/kernel.h>
-#include <zephyr/sys/printk.h>
-#include <zephyr/device.h>
-#include <zephyr/drivers/pwm.h>
-#include <zephyr/drivers/gpio.h>
-#include <zephyr/drivers/flash.h>
-#include <zephyr/storage/flash_map.h>
-#include <zephyr/fs/nvs.h>
-#include <zephyr/bluetooth/bluetooth.h>
-#include <zephyr/bluetooth/conn.h>
-#include <zephyr/bluetooth/uuid.h>
-#include <zephyr/bluetooth/gatt.h>
-#include <zephyr/pm/device.h>
-#include <zephyr/pm/policy.h>
-#include <zephyr/types.h>
-#include <string.h>
-#include <hal/nrf_power.h>
-#include <hal/nrf_gpio.h>
+#include "define.h"
 
 // ==================== Определения ====================
-#define PWM_NODE DT_NODELABEL(pwm0)
-#define PWM_CHANNEL 0
-#define PWM_PERIOD_NS 20000000 // 50 Hz
+
 
 #define BUTTON_NODE DT_ALIAS(sw0)
 
@@ -28,29 +9,11 @@
 #define LONG_PRESS_TIMEOUT_MS 2000
 #define DEBOUNCE_TIME_MS 50
 
-// NVS настройки
-#define NVS_PARTITION storage_partition
-#define NVS_PARTITION_DEVICE FIXED_PARTITION_DEVICE(NVS_PARTITION)
-#define NVS_PARTITION_OFFSET FIXED_PARTITION_OFFSET(NVS_PARTITION)
-#define NVS_ID_DUTY_CYCLE 1
-#define NVS_ID_MOTOR_STATE 2
-
 // ==================== Глобальные переменные ====================
-static const struct device *pwm_dev;
+
 static const struct gpio_dt_spec button = GPIO_DT_SPEC_GET(BUTTON_NODE, gpios);
 static struct gpio_callback button_cb_data;
 
-static struct nvs_fs nvs;
-
-static struct {
-    uint8_t duty_cycle;
-    bool motor_on;
-    bool pwm_active;
-} motor_state = {
-    .duty_cycle = 50,
-    .motor_on = false,
-    .pwm_active = false
-};
 
 // Состояние кнопки
 static struct {
@@ -63,103 +26,6 @@ static struct {
     struct k_work_delayable long_press_check;
 } button_state = {0};
 
-// ==================== NVS функции ====================
-static int nvs_init_storage(void)
-{
-    int err;
-    struct flash_pages_info info;
-
-    nvs.flash_device = NVS_PARTITION_DEVICE;
-    if (!device_is_ready(nvs.flash_device)) {
-        printk("Flash device not ready\n");
-        return -ENODEV;
-    }
-
-    nvs.offset = NVS_PARTITION_OFFSET;
-    err = flash_get_page_info_by_offs(nvs.flash_device, nvs.offset, &info);
-    if (err) {
-        printk("Unable to get flash page info\n");
-        return err;
-    }
-
-    nvs.sector_size = info.size;
-    nvs.sector_count = 3;
-
-    err = nvs_mount(&nvs);
-    if (err) {
-        printk("NVS mount failed: %d\n", err);
-        return err;
-    }
-
-    printk("NVS mounted successfully\n");
-    return 0;
-}
-
-static void nvs_save_settings(void)
-{
-    int err;
-
-    err = nvs_write(&nvs, NVS_ID_DUTY_CYCLE, &motor_state.duty_cycle, 
-                    sizeof(motor_state.duty_cycle));
-    if (err < 0) {
-        printk("Failed to write duty cycle to NVS: %d\n", err);
-    }
-
-    err = nvs_write(&nvs, NVS_ID_MOTOR_STATE, &motor_state.motor_on,
-                    sizeof(motor_state.motor_on));
-    if (err < 0) {
-        printk("Failed to write motor state to NVS: %d\n", err);
-    }
-
-    printk("Settings saved: duty=%d%%, motor=%s\n",
-           motor_state.duty_cycle, motor_state.motor_on ? "ON" : "OFF");
-}
-
-static void nvs_load_settings(void)
-{
-    int err;
-
-    err = nvs_read(&nvs, NVS_ID_DUTY_CYCLE, &motor_state.duty_cycle,
-                   sizeof(motor_state.duty_cycle));
-    if (err > 0) {
-        printk("Loaded duty cycle: %d%%\n", motor_state.duty_cycle);
-    } else {
-        printk("Using default duty: %d%%\n", motor_state.duty_cycle);
-    }
-
-    err = nvs_read(&nvs, NVS_ID_MOTOR_STATE, &motor_state.motor_on,
-                   sizeof(motor_state.motor_on));
-    if (err > 0) {
-        printk("Loaded motor state: %s\n", motor_state.motor_on ? "ON" : "OFF");
-    } else {
-        motor_state.motor_on = false;
-    }
-}
-
-// ==================== PWM управление ====================
-static void motor_set_pwm(uint8_t duty)
-{
-    if (duty > 100) duty = 100;
-
-    if (duty == 0 || !motor_state.motor_on) {
-        pwm_set(pwm_dev, PWM_CHANNEL, 0, 0, 0);
-        if (motor_state.pwm_active) {
-            pm_device_action_run(pwm_dev, PM_DEVICE_ACTION_SUSPEND);
-            motor_state.pwm_active = false;
-            printk("PWM suspended\n");
-        }
-    } else {
-        if (!motor_state.pwm_active) {
-            pm_device_action_run(pwm_dev, PM_DEVICE_ACTION_RESUME);
-            motor_state.pwm_active = true;
-            printk("PWM resumed\n");
-        }
-
-        uint32_t pulse_ns = (uint64_t)PWM_PERIOD_NS * duty / 100;
-        pwm_set(pwm_dev, PWM_CHANNEL, PWM_PERIOD_NS, pulse_ns, 0);
-        printk("Motor PWM: %d%% (%u ns)\n", duty, pulse_ns);
-    }
-}
 
 static void motor_toggle(void)
 {
@@ -333,29 +199,10 @@ BT_GATT_SERVICE_DEFINE(motor_svc,
                           read_motor_state, write_motor_state, NULL),
 );
 
-static void connected(struct bt_conn *conn, uint8_t err)
-{
-    if (err) {
-        printk("BLE Connection failed: %u\n", err);
-    } else {
-        printk("BLE Connected\n");
-    }
-}
 
-static void disconnected(struct bt_conn *conn, uint8_t reason)
-{
-    printk("BLE Disconnected (reason: %u)\n", reason);
-}
 
-BT_CONN_CB_DEFINE(conn_callbacks) = {
-    .connected = connected,
-    .disconnected = disconnected,
-};
 
-static const struct bt_data ad[] = {
-    BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
-    BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_BT_DEVICE_NAME, sizeof(CONFIG_BT_DEVICE_NAME) - 1),
-};
+
 
 int main(void)
 {
