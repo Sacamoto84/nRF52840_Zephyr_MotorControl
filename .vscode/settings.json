@@ -9,6 +9,9 @@
         "util.h": "c",
         "hci.h": "c",
         "pwm.h": "c",
-        "kernel.h": "c"
-    }
+        "kernel.h": "c",
+        "nrf_power.h": "c",
+        "nrf_gpio.h": "c"
+    },
+    "cmake.sourceDirectory": "C:/Users/Ivan/Documents/PlatformIO/Projects/N5280_Zephyr/zephyr"
 }
