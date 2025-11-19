@@ -1,10 +1,10 @@
 #include "define.h"
 
-#define PWM_NODE DT_NODELABEL(pwm0)
+
 #define PWM_CHANNEL 0
 #define PWM_PERIOD_NS 20000000 // 50 Hz
 
-static const struct device *pwm_dev;
+const struct device *pwm_dev;
 
 // ==================== PWM управление ====================
 void motor_set_pwm(uint8_t duty)
@@ -29,4 +29,15 @@ void motor_set_pwm(uint8_t duty)
         pwm_set(pwm_dev, PWM_CHANNEL, PWM_PERIOD_NS, pulse_ns, 0);
         printk("Motor PWM: %d%% (%u ns)\n", duty, pulse_ns);
     }
+}
+
+void motor_toggle(void)
+{
+    motor_state.motor_on = !motor_state.motor_on;
+    printk("Motor %s at %d%%\n",
+           motor_state.motor_on ? "ON" : "OFF",
+           motor_state.duty_cycle);
+
+    motor_set_pwm(motor_state.motor_on ? motor_state.duty_cycle : 0);
+    nvs_save_settings();
 }

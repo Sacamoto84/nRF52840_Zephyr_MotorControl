@@ -27,6 +27,8 @@
 extern "C" {
 #endif
 
+#define PWM_NODE DT_NODELABEL(pwm0)
+
 // Объявление типа структуры
 typedef struct {
     uint8_t duty_cycle;
@@ -43,7 +45,19 @@ extern void nvs_load_settings(void);
 extern void nvs_save_settings(void);
 
 //pwm.c
+extern const struct device *pwm_dev;
 extern void motor_set_pwm(uint8_t duty);
+extern void motor_toggle(void);
+
+
+//button.c 
+extern const struct gpio_dt_spec button;
+extern  struct gpio_callback button_cb_data;
+extern void double_click_handler(void);
+extern void single_click_handler(void);
+extern void long_press_check_work(struct k_work *work);
+extern void button_isr(const struct device *dev, struct gpio_callback *cb, uint32_t pins);
+extern void double_click_timeout_work(struct k_work *work);
 
 #ifdef __cplusplus
 }
