@@ -1,5 +1,5 @@
-#ifndef ZEPHYR_INCLUDE_STORAGE_FLASH_MAP_H_
-#define ZEPHYR_INCLUDE_STORAGE_FLASH_MAP_H_
+#ifndef DEFINE_H_
+#define DEFINE_H_
 
 #include <zephyr/kernel.h>
 #include <zephyr/sys/printk.h>
@@ -23,20 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define PWM_NODE DT_NODELABEL(pwm0)
-
-// Объявление типа структуры
-typedef struct {
-    uint8_t duty_cycle;
-    bool motor_on;
-    bool pwm_active;
-} motor_state_t;
-
-extern motor_state_t motor_state;
 
 // Состояние кнопки
 typedef struct {
@@ -76,9 +63,11 @@ extern void double_click_timeout_work(struct k_work *work);
 //ble.c
 extern void ble_start_adv(void);
 
-#ifdef __cplusplus
-}
-#endif
+
+//global.c
+extern uint8_t duty_cycle;
+extern bool motor_on;
+extern bool pwm_active;
 
 /**
  * @}

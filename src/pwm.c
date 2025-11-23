@@ -1,5 +1,8 @@
 #include "define.h"
 
+extern uint8_t duty_cycle;
+extern bool motor_on;
+extern bool pwm_active;
 
 #define PWM_CHANNEL 0
 #define PWM_PERIOD_NS 20000000 // 50 Hz
@@ -11,17 +14,17 @@ void motor_set_pwm(uint8_t duty)
 {
     if (duty > 100) duty = 100;
 
-    if (duty == 0 || !motor_state.motor_on) {
+    if (duty == 0 || !motor_on) {
         pwm_set(pwm_dev, PWM_CHANNEL, 0, 0, 0);
-        if (motor_state.pwm_active) {
+        if (pwm_active) {
             pm_device_action_run(pwm_dev, PM_DEVICE_ACTION_SUSPEND);
-            motor_state.pwm_active = false;
+            pwm_active = false;
             printk("PWM suspended\n");
         }
     } else {
-        if (!motor_state.pwm_active) {
+        if (!pwm_active) {
             pm_device_action_run(pwm_dev, PM_DEVICE_ACTION_RESUME);
-            motor_state.pwm_active = true;
+            pwm_active = true;
             printk("PWM resumed\n");
         }
 
@@ -33,8 +36,8 @@ void motor_set_pwm(uint8_t duty)
 
 void motor_toggle(void)
 {
-    motor_state.motor_on = !motor_state.motor_on;
-    printk("Motor %s at %d%%\n", motor_state.motor_on ? "ON" : "OFF", motor_state.duty_cycle);
-    motor_set_pwm(motor_state.motor_on ? motor_state.duty_cycle : 0);
+    motor_on = !motor_on;
+    printk("Motor %s at %d%%\n", motor_on ? "ON" : "OFF", duty_cycle);
+    motor_set_pwm(motor_on ? duty_cycle : 0);
     nvs_save_settings();
 }

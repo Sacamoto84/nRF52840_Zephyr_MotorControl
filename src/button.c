@@ -12,11 +12,15 @@ struct gpio_callback button_cb_data;
 
 button_state_t button_state = {0};
 
+extern uint8_t duty_cycle;
+extern bool motor_on;
+extern bool pwm_active;
+
 static void long_press_handler(void)
 {
     printk("Long press: Motor test\n");
 
-    if (motor_state.motor_on) {
+    if (motor_on) {
         for (int i = 0; i <= 100; i += 10) {
             motor_set_pwm(i);
             k_sleep(K_MSEC(100));
@@ -25,7 +29,7 @@ static void long_press_handler(void)
             motor_set_pwm(i);
             k_sleep(K_MSEC(100));
         }
-        motor_set_pwm(motor_state.duty_cycle);
+        motor_set_pwm(duty_cycle);
     }
 }
 
@@ -97,9 +101,9 @@ void single_click_handler(void)
 void double_click_handler(void)
 {
     printk("Double click: Reset duty to 50%%\n");
-    motor_state.duty_cycle = 50;
-    if (motor_state.motor_on) {
-        motor_set_pwm(motor_state.duty_cycle);
+    duty_cycle = 50;
+    if (motor_on) {
+        motor_set_pwm(duty_cycle);
     }
     nvs_save_settings();
 }

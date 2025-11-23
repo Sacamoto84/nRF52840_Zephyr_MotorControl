@@ -1,6 +1,4 @@
 
-#include "define.h"
-
 #include <zephyr/drivers/flash.h>
 #include <zephyr/storage/flash_map.h>
 #include <zephyr/fs/nvs.h>
@@ -13,6 +11,10 @@
 #define NVS_ID_MOTOR_STATE 2
 
 static struct nvs_fs nvs;
+
+extern uint8_t duty_cycle;
+extern bool motor_on;
+extern bool pwm_active;
 
 // ==================== NVS функции ====================
 int nvs_init_storage(void)
@@ -53,37 +55,36 @@ void nvs_save_settings(void)
 {
     int err;
 
-    err = nvs_write(&nvs, NVS_ID_DUTY_CYCLE, &motor_state.duty_cycle, sizeof(motor_state.duty_cycle));
+    err = nvs_write(&nvs, NVS_ID_DUTY_CYCLE, &duty_cycle, sizeof(duty_cycle));
     if (err < 0) printk("Failed to write duty cycle to NVS: %d\n", err);
 
-    err = nvs_write(&nvs, NVS_ID_MOTOR_STATE, &motor_state.motor_on, sizeof(motor_state.motor_on));
+    err = nvs_write(&nvs, NVS_ID_MOTOR_STATE, &motor_on, sizeof(motor_on));
     if (err < 0) printk("Failed to write motor state to NVS: %d\n", err);
     
-    printk("Settings saved: duty=%d%%, motor=%s\n", motor_state.duty_cycle, motor_state.motor_on ? "ON" : "OFF");
+    printk("Settings saved: duty=%d%%, motor=%s\n", duty_cycle, motor_on ? "ON" : "OFF");
 }
 
 void nvs_load_settings(void)
 {
     int err;
 
-    err = nvs_read(&nvs, NVS_ID_DUTY_CYCLE, &motor_state.duty_cycle, sizeof(motor_state.duty_cycle));
+    err = nvs_read(&nvs, NVS_ID_DUTY_CYCLE, &duty_cycle, sizeof(duty_cycle));
     if (err > 0)
     {
-        printk("Loaded duty cycle: %d%%\n", motor_state.duty_cycle);
+        printk("Loaded duty cycle: %d%%\n", duty_cycle);
     }
     else
     {
-        printk("Using default duty: %d%%\n", motor_state.duty_cycle);
+        printk("Using default duty: %d%%\n", duty_cycle);
     }
 
-    err = nvs_read(&nvs, NVS_ID_MOTOR_STATE, &motor_state.motor_on,
-                   sizeof(motor_state.motor_on));
+    err = nvs_read(&nvs, NVS_ID_MOTOR_STATE, &motor_on, sizeof(motor_on));
     if (err > 0)
     {
-        printk("Loaded motor state: %s\n", motor_state.motor_on ? "ON" : "OFF");
+        printk("Loaded motor state: %s\n", motor_on ? "ON" : "OFF");
     }
     else
     {
-        motor_state.motor_on = false;
+        motor_on = false;
     }
 }

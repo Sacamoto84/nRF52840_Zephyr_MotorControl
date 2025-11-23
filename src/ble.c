@@ -50,7 +50,7 @@ static ssize_t read_duty_cycle(struct bt_conn *conn, const struct bt_gatt_attr *
                                void *buf, uint16_t len, uint16_t offset)
 {
     return bt_gatt_attr_read(conn, attr, buf, len, offset,
-                             &motor_state.duty_cycle, sizeof(motor_state.duty_cycle));
+                             &duty_cycle, sizeof(duty_cycle));
 }
 
 static ssize_t write_duty_cycle(struct bt_conn *conn, const struct bt_gatt_attr *attr,
@@ -68,12 +68,12 @@ static ssize_t write_duty_cycle(struct bt_conn *conn, const struct bt_gatt_attr 
         return BT_GATT_ERR(BT_ATT_ERR_VALUE_NOT_ALLOWED);
     }
 
-    motor_state.duty_cycle = new_duty;
-    printk("BLE: Set duty to %d%%\n", motor_state.duty_cycle);
+    duty_cycle = new_duty;
+    printk("BLE: Set duty to %d%%\n", duty_cycle);
 
-    if (motor_state.motor_on)
+    if (motor_on)
     {
-        motor_set_pwm(motor_state.duty_cycle);
+        motor_set_pwm(duty_cycle);
     }
 
     nvs_save_settings();
@@ -83,7 +83,7 @@ static ssize_t write_duty_cycle(struct bt_conn *conn, const struct bt_gatt_attr 
 static ssize_t read_motor_state(struct bt_conn *conn, const struct bt_gatt_attr *attr,
                                 void *buf, uint16_t len, uint16_t offset)
 {
-    uint8_t state = motor_state.motor_on ? 1 : 0;
+    uint8_t state = motor_on ? 1 : 0;
     return bt_gatt_attr_read(conn, attr, buf, len, offset, &state, sizeof(state));
 }
 
@@ -97,10 +97,10 @@ static ssize_t write_motor_state(struct bt_conn *conn, const struct bt_gatt_attr
     }
 
     uint8_t new_state = *((uint8_t *)buf);
-    motor_state.motor_on = (new_state != 0);
+    motor_on = (new_state != 0);
 
-    printk("BLE: Motor %s\n", motor_state.motor_on ? "ON" : "OFF");
-    motor_set_pwm(motor_state.motor_on ? motor_state.duty_cycle : 0);
+    printk("BLE: Motor %s\n", motor_on ? "ON" : "OFF");
+    motor_set_pwm(motor_on ? duty_cycle : 0);
     nvs_save_settings();
 
     return len;
