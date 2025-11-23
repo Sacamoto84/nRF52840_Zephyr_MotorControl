@@ -77,3 +77,13 @@
     pinctrl-1 = <&pwm0_sleep>;
     pinctrl-names = "default", "sleep";
 };
+
+&flash0 {
+    partitions {
+        /* Правильный синтаксис: partition@ + адрес из reg */
+        storage: partition@f8000 {
+            label = "storage";
+            reg = <0x000f8000 0x8000>;   /* 32 КБ в конце flash */
+        };
+    };
+};

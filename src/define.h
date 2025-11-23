@@ -38,6 +38,19 @@ typedef struct {
 
 extern motor_state_t motor_state;
 
+// Состояние кнопки
+typedef struct {
+    int64_t press_start_time;
+    int64_t last_press_time;
+    bool is_pressed;
+    bool waiting_for_second_click;
+    bool long_press_triggered;
+    struct k_work_delayable double_click_timeout;
+    struct k_work_delayable long_press_check;
+} button_state_t;
+
+extern button_state_t button_state;
+
 
 //storage.c
 extern int nvs_init_storage(void);
@@ -58,6 +71,10 @@ extern void single_click_handler(void);
 extern void long_press_check_work(struct k_work *work);
 extern void button_isr(const struct device *dev, struct gpio_callback *cb, uint32_t pins);
 extern void double_click_timeout_work(struct k_work *work);
+
+
+//ble.c
+extern void ble_start_adv(void);
 
 #ifdef __cplusplus
 }

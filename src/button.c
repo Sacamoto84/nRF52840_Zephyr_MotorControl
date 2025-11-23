@@ -10,17 +10,7 @@
 const struct gpio_dt_spec button = GPIO_DT_SPEC_GET(BUTTON_NODE, gpios);
 struct gpio_callback button_cb_data;
 
-
-// Состояние кнопки
-static struct {
-    int64_t press_start_time;
-    int64_t last_press_time;
-    bool is_pressed;
-    bool waiting_for_second_click;
-    bool long_press_triggered;
-    struct k_work_delayable double_click_timeout;
-    struct k_work_delayable long_press_check;
-} button_state = {0};
+button_state_t button_state = {0};
 
 static void long_press_handler(void)
 {

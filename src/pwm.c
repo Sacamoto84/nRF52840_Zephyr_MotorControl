@@ -34,10 +34,7 @@ void motor_set_pwm(uint8_t duty)
 void motor_toggle(void)
 {
     motor_state.motor_on = !motor_state.motor_on;
-    printk("Motor %s at %d%%\n",
-           motor_state.motor_on ? "ON" : "OFF",
-           motor_state.duty_cycle);
-
+    printk("Motor %s at %d%%\n", motor_state.motor_on ? "ON" : "OFF", motor_state.duty_cycle);
     motor_set_pwm(motor_state.motor_on ? motor_state.duty_cycle : 0);
     nvs_save_settings();
 }

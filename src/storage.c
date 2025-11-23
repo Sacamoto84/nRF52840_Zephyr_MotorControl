@@ -3,17 +3,16 @@
 
 #include <zephyr/drivers/flash.h>
 #include <zephyr/storage/flash_map.h>
+#include <zephyr/fs/nvs.h>
 
 // NVS настройки
-#define NVS_PARTITION storage_partition
+#define NVS_PARTITION storage
 #define NVS_PARTITION_DEVICE FIXED_PARTITION_DEVICE(NVS_PARTITION)
 #define NVS_PARTITION_OFFSET FIXED_PARTITION_OFFSET(NVS_PARTITION)
 #define NVS_ID_DUTY_CYCLE 1
 #define NVS_ID_MOTOR_STATE 2
 
 static struct nvs_fs nvs;
-
-
 
 // ==================== NVS функции ====================
 int nvs_init_storage(void)
