@@ -1,7 +1,35 @@
 #include "define.h"
 
+//"NRF52832_XXAA"
+//JLinkGDBServer -device NRF52832_XXAA -if SWD -speed 6000 -autoconnect 1 -nogui
+
+// Удобные макросы (можно положить в отдельный .h)
+#define CLRscr      "\033[2J\033[H"
+#define FG(color)   "\033[38;5;" #color "m"
+#define BG(color)   "\033[48;5;" #color "m"
+#define RESET       "\033[0m"
+#define BOLD        "\033[1m"
+#define UNDERLINE   "\033[4m"
+
 int main(void)
 {
+    printk(CLRscr);                     // очистить экран
+
+    printk(BOLD FG(226) "╔══════════════════════════════════════════╗\n" RESET);
+    printk(BOLD FG(226) "║  ZEPHYR + RTT 256 цвет + русский язык    ║\n" RESET);
+    printk(BOLD FG(226) "╚══════════════════════════════════════════╝\n" RESET);
+
+    for (int i = 0; i < 10; i++) {
+        int color = i * 25;
+        printk(FG(%d) "  Цвет %3d →  Привет из %s!  " RESET
+               BG(%d) "  фон %3d  " RESET "\n",
+               color, color, CONFIG_BOARD, color + 5, color + 5);
+    }
+
+    printk("\n" BOLD UNDERLINE FG(196) "Критическая ошибка!" RESET "  "
+           FG(82) "Успешно!" RESET "  "
+           FG(226) "Предупреждение\n" RESET);
+
     int err;
 
     /* REGOUT0 настройка */
