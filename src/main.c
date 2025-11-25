@@ -92,14 +92,14 @@ int main(void)
     err = gpio_pin_configure_dt(&button, GPIO_INPUT);
     if (err)
     {
-        printk("Failed to configure button\n");
+        printk(BOLD UNDERLINE FG(196) "Не удалось настроить кнопку\n" RESET);
         return -1;
     }
 
     err = gpio_pin_interrupt_configure_dt(&button, GPIO_INT_EDGE_BOTH);
     if (err)
     {
-        printk("Failed to configure button interrupt\n");
+        printk(BOLD UNDERLINE FG(196) "Не удалось настроить прерывание кнопки\n" RESET);
         return -1;
     }
 
@@ -113,16 +113,16 @@ int main(void)
     printk("Button configured\n");
 
     // Инициализация Bluetooth
-    err = bt_enable(NULL);
-    if (err)
-    {
-        printk("Bluetooth init failed: %d\n", err);
-        return -1;
-    }
+    // err = bt_enable(NULL);
+    // if (err)
+    // {
+    //     printk("Bluetooth init failed: %d\n", err);
+    //     return -1;
+    // }
 
-    printk("Bluetooth initialized\n");
+    // printk("Bluetooth initialized\n");
 
-    ble_start_adv();
+    // ble_start_adv();
 
     // printk("Advertising started\n");
     // printk("=== System Ready ===\n");

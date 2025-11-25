@@ -43,6 +43,9 @@ void double_click_timeout_work(struct k_work *work)
 // GPIO ISR
 void button_isr(const struct device *dev, struct gpio_callback *cb, uint32_t pins)
 {
+
+    printk("Button ISR triggered\n");
+    
     int64_t now = k_uptime_get();
     int button_value = gpio_pin_get_dt(&button);
 
