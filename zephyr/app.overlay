@@ -58,15 +58,6 @@
     status = "disabled";
 };
 
-/* Если используется SPIM2/SPIS2 явно */
-&spim2 {
-    status = "disabled";
-};
-
-&spis2 {
-    status = "disabled";
-};
-
 &gpio0 {
     status = "okay";
 };
