@@ -21,7 +21,7 @@ class uButton : public uButtonVirt {
 
     // прочитать состояние кнопки
     bool readButton() {
-        return !gpio_pin_get_dt(&button);
+        return gpio_pin_get_dt(&button);
     }
 
    private:

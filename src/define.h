@@ -66,7 +66,7 @@ extern  struct gpio_callback button_cb_data;
 extern void double_click_handler(void);
 extern void single_click_handler(void);
 extern void long_press_check_work(struct k_work *work);
-extern void button_isr(const struct device *dev, struct gpio_callback *cb, uint32_t pins);
+//extern void button_isr(const struct device *dev, struct gpio_callback *cb, uint32_t pins);
 extern void double_click_timeout_work(struct k_work *work);
 
 

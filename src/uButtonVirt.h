@@ -9,7 +9,7 @@
 #endif
 
 #ifndef UB_HOLD_TIME
-#define UB_HOLD_TIME 600  // время до перехода в состояние "удержание"
+#define UB_HOLD_TIME 1000  // время до перехода в состояние "удержание"
 #endif
 
 #ifndef UB_STEP_TIME
@@ -17,7 +17,7 @@
 #endif
 
 #ifndef UB_STEP_PRD
-#define UB_STEP_PRD 200  // период импульсов
+#define UB_STEP_PRD 1000  // период импульсов
 #endif
 
 #ifndef UB_CLICK_TIME
@@ -385,10 +385,10 @@ class uButtonVirt {
    private:
     uint16_t _tmr = 0;
     uint8_t _deb = 0;
-    uint8_t _press  : 1;
-    uint8_t _steps  : 7;
+    uint8_t _press;
+    uint8_t _steps;
     State _state;
-    uint8_t _clicks : 4;
+    uint8_t _clicks;
 
     uint16_t _getTime() {
         return uint16_t(k_uptime_get()) - _tmr;

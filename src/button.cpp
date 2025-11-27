@@ -16,16 +16,34 @@ extern uint8_t duty_cycle;
 extern bool motor_on;
 extern bool pwm_active;
 
-
 uButton b(button);
 
-
-
-
-
-
-
-
+extern "C" void buttonLoop()
+{
+    if (b.tick())
+    {
+        if (b.press())
+            printk("Press\n");
+        if (b.click())
+            printk("Click\n");
+        if (b.hold())
+            printk("Hold\n");
+        if (b.releaseHold())
+            printk("ReleaseHold\n");
+        if (b.step())
+            printk("Step\n");
+        if (b.releaseStep())
+            printk("releaseStep\n");
+        if (b.release())
+            printk("Release\n");
+        if (b.hasClicks())
+        {
+            printk("Clicks: %d\n", b.getClicks());
+        }
+        if (b.timeout())
+            printk("Timeout\n");
+    }
+}
 
 static void long_press_handler(void)
 {
@@ -55,57 +73,60 @@ void double_click_timeout_work(struct k_work *work)
 }
 
 // GPIO ISR
-void button_isr(const struct device *dev, struct gpio_callback *cb, uint32_t pins)
+extern "C" void button_isr(const struct device *dev, struct gpio_callback *cb, uint32_t pins)
 {
 
-    printk(FG(233) BG(82) "\n Button ISR \033[0m triggered\n");
 
-    int64_t now = k_uptime_get();
+    printk(BOLD FG(82) "\n%lld: Button ISR \033[0m %d\n",  k_uptime_get(), gpio_pin_get_dt(&button));
 
-    int button_value = gpio_pin_get_dt(&button);
+    //int64_t now = k_uptime_get();
+    //int button_value = gpio_pin_get_dt(&button);
+    //printk(RESET "Now %lld pin: %d\n " RESET, now, button_value);
 
-    printk(RESET "Now %lld pin: %d\n " RESET, now, button_value);
+    b.tick();
 
-    if (button_value == 1)
-    {
-        // Кнопка нажата
-        int64_t time_since_last = now - button_state.last_press_time;
+    //buttonLoop();
 
-        if (time_since_last < DEBOUNCE_TIME_MS)
-        {
-            return; // Debounce
-        }
+    // if (button_value == 1)
+    // {
+    //     // Кнопка нажата
+    //     int64_t time_since_last = now - button_state.last_press_time;
 
-        button_state.is_pressed = true;
-        button_state.press_start_time = now;
-        button_state.long_press_triggered = false;
+    //     if (time_since_last < DEBOUNCE_TIME_MS)
+    //     {
+    //         return; // Debounce
+    //     }
 
-        k_work_reschedule(&button_state.long_press_check,
-                          K_MSEC(LONG_PRESS_TIMEOUT_MS));
+    //     button_state.is_pressed = true;
+    //     button_state.press_start_time = now;
+    //     button_state.long_press_triggered = false;
 
-        if (button_state.waiting_for_second_click)
-        {
-            k_work_cancel_delayable(&button_state.double_click_timeout);
-            button_state.waiting_for_second_click = false;
-            double_click_handler();
-        }
-    }
-    else
-    {
-        // Кнопка отпущена
-        button_state.is_pressed = false;
-        int64_t press_duration = now - button_state.press_start_time;
+    //     k_work_reschedule(&button_state.long_press_check,
+    //                       K_MSEC(LONG_PRESS_TIMEOUT_MS));
 
-        k_work_cancel_delayable(&button_state.long_press_check);
+    //     if (button_state.waiting_for_second_click)
+    //     {
+    //         k_work_cancel_delayable(&button_state.double_click_timeout);
+    //         button_state.waiting_for_second_click = false;
+    //         double_click_handler();
+    //     }
+    // }
+    // else
+    // {
+    //     // Кнопка отпущена
+    //     button_state.is_pressed = false;
+    //     int64_t press_duration = now - button_state.press_start_time;
 
-        if (!button_state.long_press_triggered && press_duration < LONG_PRESS_TIMEOUT_MS)
-        {
-            button_state.waiting_for_second_click = true;
-            k_work_reschedule(&button_state.double_click_timeout,  K_MSEC(DOUBLE_CLICK_TIMEOUT_MS));
-        }
+    //     k_work_cancel_delayable(&button_state.long_press_check);
 
-        button_state.last_press_time = now;
-    }
+    //     if (!button_state.long_press_triggered && press_duration < LONG_PRESS_TIMEOUT_MS)
+    //     {
+    //         button_state.waiting_for_second_click = true;
+    //         k_work_reschedule(&button_state.double_click_timeout,  K_MSEC(DOUBLE_CLICK_TIMEOUT_MS));
+    //     }
+
+    //     button_state.last_press_time = now;
+    // }
 }
 
 void long_press_check_work(struct k_work *work)
@@ -121,16 +142,16 @@ void long_press_check_work(struct k_work *work)
 void single_click_handler(void)
 {
     printk("\nSingle click\n");
-    //motor_toggle();
+    // motor_toggle();
 }
 
 void double_click_handler(void)
 {
     printk("\nDouble двойное нажатие\n");
-    //duty_cycle = 50;
-    //if (motor_on)
+    // duty_cycle = 50;
+    // if (motor_on)
     //{
-    //    motor_set_pwm(duty_cycle);
-    //}
-    //nvs_save_settings();
+    //     motor_set_pwm(duty_cycle);
+    // }
+    // nvs_save_settings();
 }

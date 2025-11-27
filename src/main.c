@@ -4,7 +4,11 @@
 //"NRF52832_XXAA"
 // JLinkGDBServer -device NRF52832_XXAA -if SWD -speed 6000 -autoconnect 1 -nogui
 
-//extern uButton b;
+// extern uButton b;
+
+extern void button_isr();
+
+extern void buttonLoop();
 
 int main(void)
 {
@@ -97,8 +101,8 @@ int main(void)
         return -1;
     }
 
-    //   gpio_init_callback(&button_cb_data, button_isr, BIT(button.pin));
-    //   gpio_add_callback(button.port, &button_cb_data);
+    gpio_init_callback(&button_cb_data, button_isr, BIT(button.pin));
+    gpio_add_callback(button.port, &button_cb_data);
 
     // Инициализация delayed works
     //    k_work_init_delayable(&button_state.double_click_timeout, double_click_timeout_work);
@@ -107,18 +111,19 @@ int main(void)
     printk("Button configured\n");
 
     // Инициализация Bluetooth
-    // err = bt_enable(NULL);
-    // if (err)
-    // {
-    //     printk("Bluetooth init failed: %d\n", err);
-    //     return -1;
-    // }
+    err = bt_enable(NULL);
+    if (err)
+    {
+        printk("Bluetooth init failed: %d\n", err);
+        return -1;
+    }
 
-    // printk("Bluetooth initialized\n");
+    printk("Bluetooth initialized\n");
 
-    // ble_start_adv();
+    ble_start_adv();
 
-    // printk("Advertising started\n");
+    printk("Advertising started\n");
+
     // printk("=== System Ready ===\n");
     // printk("Motor: %s, Duty: %d%%\n",
     //        motor_state.motor_on ? "ON" : "OFF",
@@ -135,35 +140,13 @@ int main(void)
     while (1)
     {
 
-        // if (b.tick())
-        // {
-        //     if (b.press())
-        //         printk("Press");
-        //     if (b.click())
-        //         printk("Click");
-        //     if (b.hold())
-        //         printk("Hold");
-        //     if (b.releaseHold())
-        //         printk("ReleaseHold");
-        //     if (b.step())
-        //         printk("Step");
-        //     if (b.releaseStep())
-        //         printk("releaseStep");
-        //     if (b.release())
-        //         printk("Release");
-        //     if (b.hasClicks()){
-        //         printk("Clicks: "); 
-        //         printk(b.getClicks());
-        //     }
-        //     if (b.timeout())
-        //         printk("Timeout");
-        // }
-
+        buttonLoop();
+       
         // printk("\r" FG(51) "► Uptime: %6u сек" RESET, k_uptime_get_32() / 1000);
 
-        k_sleep(K_MSEC(50));
+        k_sleep(K_MSEC(20));
 
-        // k_sleep(K_FOREVER);
+        //k_sleep(K_FOREVER);
 
         // k_sleep(K_SECONDS(1));
     }
