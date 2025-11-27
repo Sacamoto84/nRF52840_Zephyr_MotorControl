@@ -23,6 +23,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "uButton.h"
+
 // Удобные макросы (можно положить в отдельный .h)
 #define CLRscr "\033[2J\033[H"
 #define FG(color) "\033[38;5;" #color "m"

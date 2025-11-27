@@ -16,6 +16,17 @@ extern uint8_t duty_cycle;
 extern bool motor_on;
 extern bool pwm_active;
 
+
+uButton b(button);
+
+
+
+
+
+
+
+
+
 static void long_press_handler(void)
 {
     printk("\nДолгое нажатие\n");

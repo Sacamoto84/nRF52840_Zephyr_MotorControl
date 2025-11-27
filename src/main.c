@@ -4,7 +4,7 @@
 //"NRF52832_XXAA"
 // JLinkGDBServer -device NRF52832_XXAA -if SWD -speed 6000 -autoconnect 1 -nogui
 
-
+//extern uButton b;
 
 int main(void)
 {
@@ -97,12 +97,12 @@ int main(void)
         return -1;
     }
 
-    gpio_init_callback(&button_cb_data, button_isr, BIT(button.pin));
-    gpio_add_callback(button.port, &button_cb_data);
+    //   gpio_init_callback(&button_cb_data, button_isr, BIT(button.pin));
+    //   gpio_add_callback(button.port, &button_cb_data);
 
     // Инициализация delayed works
-    k_work_init_delayable(&button_state.double_click_timeout, double_click_timeout_work);
-    k_work_init_delayable(&button_state.long_press_check, long_press_check_work);
+    //    k_work_init_delayable(&button_state.double_click_timeout, double_click_timeout_work);
+    //    k_work_init_delayable(&button_state.long_press_check, long_press_check_work);
 
     printk("Button configured\n");
 
@@ -135,8 +135,33 @@ int main(void)
     while (1)
     {
 
-        printk("\r" FG(51) "► Uptime: %6u сек" RESET, k_uptime_get_32() / 1000);
-        k_sleep(K_MSEC(200));
+        // if (b.tick())
+        // {
+        //     if (b.press())
+        //         printk("Press");
+        //     if (b.click())
+        //         printk("Click");
+        //     if (b.hold())
+        //         printk("Hold");
+        //     if (b.releaseHold())
+        //         printk("ReleaseHold");
+        //     if (b.step())
+        //         printk("Step");
+        //     if (b.releaseStep())
+        //         printk("releaseStep");
+        //     if (b.release())
+        //         printk("Release");
+        //     if (b.hasClicks()){
+        //         printk("Clicks: "); 
+        //         printk(b.getClicks());
+        //     }
+        //     if (b.timeout())
+        //         printk("Timeout");
+        // }
+
+        // printk("\r" FG(51) "► Uptime: %6u сек" RESET, k_uptime_get_32() / 1000);
+
+        k_sleep(K_MSEC(50));
 
         // k_sleep(K_FOREVER);
 
