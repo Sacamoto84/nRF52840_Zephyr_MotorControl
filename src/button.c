@@ -18,19 +18,22 @@ extern bool pwm_active;
 
 static void long_press_handler(void)
 {
-    printk("Long press: Motor test\n");
+    printk("\nДолгое нажатие\n");
 
-    if (motor_on) {
-        for (int i = 0; i <= 100; i += 10) {
-            motor_set_pwm(i);
-            k_sleep(K_MSEC(100));
-        }
-        for (int i = 100; i >= 0; i -= 10) {
-            motor_set_pwm(i);
-            k_sleep(K_MSEC(100));
-        }
-        motor_set_pwm(duty_cycle);
-    }
+    // if (motor_on)
+    // {
+    //     for (int i = 0; i <= 100; i += 10)
+    //     {
+    //         motor_set_pwm(i);
+    //         k_sleep(K_MSEC(100));
+    //     }
+    //     for (int i = 100; i >= 0; i -= 10)
+    //     {
+    //         motor_set_pwm(i);
+    //         k_sleep(K_MSEC(100));
+    //     }
+    //     motor_set_pwm(duty_cycle);
+    // }
 }
 
 // Work handlers
@@ -44,16 +47,21 @@ void double_click_timeout_work(struct k_work *work)
 void button_isr(const struct device *dev, struct gpio_callback *cb, uint32_t pins)
 {
 
-    printk(BOLD FG(0) BG(2) "\n Button ISR triggered\n" RESET);
-    
+    printk(FG(233) BG(82) "\n Button ISR \033[0m triggered\n");
+
     int64_t now = k_uptime_get();
+
     int button_value = gpio_pin_get_dt(&button);
 
-    if (button_value == 0) {
+    printk(RESET "Now %lld pin: %d\n " RESET, now, button_value);
+
+    if (button_value == 1)
+    {
         // Кнопка нажата
         int64_t time_since_last = now - button_state.last_press_time;
 
-        if (time_since_last < DEBOUNCE_TIME_MS) {
+        if (time_since_last < DEBOUNCE_TIME_MS)
+        {
             return; // Debounce
         }
 
@@ -64,22 +72,25 @@ void button_isr(const struct device *dev, struct gpio_callback *cb, uint32_t pin
         k_work_reschedule(&button_state.long_press_check,
                           K_MSEC(LONG_PRESS_TIMEOUT_MS));
 
-        if (button_state.waiting_for_second_click) {
+        if (button_state.waiting_for_second_click)
+        {
             k_work_cancel_delayable(&button_state.double_click_timeout);
             button_state.waiting_for_second_click = false;
             double_click_handler();
         }
-    } else {
+    }
+    else
+    {
         // Кнопка отпущена
         button_state.is_pressed = false;
         int64_t press_duration = now - button_state.press_start_time;
 
         k_work_cancel_delayable(&button_state.long_press_check);
 
-        if (!button_state.long_press_triggered && press_duration < LONG_PRESS_TIMEOUT_MS) {
+        if (!button_state.long_press_triggered && press_duration < LONG_PRESS_TIMEOUT_MS)
+        {
             button_state.waiting_for_second_click = true;
-            k_work_reschedule(&button_state.double_click_timeout,
-                              K_MSEC(DOUBLE_CLICK_TIMEOUT_MS));
+            k_work_reschedule(&button_state.double_click_timeout,  K_MSEC(DOUBLE_CLICK_TIMEOUT_MS));
         }
 
         button_state.last_press_time = now;
@@ -88,7 +99,8 @@ void button_isr(const struct device *dev, struct gpio_callback *cb, uint32_t pin
 
 void long_press_check_work(struct k_work *work)
 {
-    if (button_state.is_pressed && !button_state.long_press_triggered) {
+    if (button_state.is_pressed && !button_state.long_press_triggered)
+    {
         button_state.long_press_triggered = true;
         long_press_handler();
     }
@@ -97,17 +109,17 @@ void long_press_check_work(struct k_work *work)
 // ==================== Обработка кнопки ====================
 void single_click_handler(void)
 {
-    printk("Single click: Toggle motor\n");
-    motor_toggle();
+    printk("\nSingle click\n");
+    //motor_toggle();
 }
 
 void double_click_handler(void)
 {
-    printk("Double click: Reset duty to 50%%\n");
-    duty_cycle = 50;
-    if (motor_on) {
-        motor_set_pwm(duty_cycle);
-    }
-    nvs_save_settings();
+    printk("\nDouble двойное нажатие\n");
+    //duty_cycle = 50;
+    //if (motor_on)
+    //{
+    //    motor_set_pwm(duty_cycle);
+    //}
+    //nvs_save_settings();
 }
-
