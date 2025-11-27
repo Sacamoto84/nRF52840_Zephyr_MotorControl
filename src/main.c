@@ -4,8 +4,6 @@
 //"NRF52832_XXAA"
 // JLinkGDBServer -device NRF52832_XXAA -if SWD -speed 6000 -autoconnect 1 -nogui
 
-// extern uButton b;
-
 extern void button_isr();
 
 extern void buttonLoop();
@@ -117,11 +115,8 @@ int main(void)
         printk("Bluetooth init failed: %d\n", err);
         return -1;
     }
-
     printk("Bluetooth initialized\n");
-
     ble_start_adv();
-
     printk("Advertising started\n");
 
     // printk("=== System Ready ===\n");
@@ -134,20 +129,16 @@ int main(void)
     // pm_policy_state_lock_put(PM_STATE_STANDBY, PM_ALL_SUBSTATES);
     // pm_policy_state_lock_put(PM_STATE_SUSPEND_TO_IDLE, PM_ALL_SUBSTATES);
 
-    printk("Deep sleep enabled\n");
 
     // Main loop - просто спим, всё управляется прерываниями
     while (1)
     {
 
         buttonLoop();
-       
         // printk("\r" FG(51) "► Uptime: %6u сек" RESET, k_uptime_get_32() / 1000);
-
         k_sleep(K_MSEC(20));
 
         //k_sleep(K_FOREVER);
-
         // k_sleep(K_SECONDS(1));
     }
 

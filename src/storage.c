@@ -10,6 +10,8 @@
 #define NVS_PARTITION_DEVICE FIXED_PARTITION_DEVICE(NVS_PARTITION)
 #define NVS_PARTITION_OFFSET FIXED_PARTITION_OFFSET(NVS_PARTITION)
 
+#define ZMS_NUM_SECTORS 8
+
 struct zms_fs zms;
 
 extern uint8_t duty_cycle;
@@ -48,7 +50,7 @@ int nvs_init_storage(void)
     zms.sector_size = info.size;
 
     // Используем 3-4 сектора для NVS (из доступных 8)
-    zms.sector_count = 8; // 8 * 4KB = 32 KB для NVS
+    zms.sector_count = ZMS_NUM_SECTORS; // 8 * 4KB = 32 KB для NVS
 
     printk("Zms init:\n");
     printk("  Flash device: %s\n", zms.flash_device->name);
@@ -76,7 +78,7 @@ int nvs_init_storage(void)
  * @param data Данные для сохранения
  * @return 0 при успехе, отрицательное значение при ошибке
  */
-void zmsSave(uint32_t id, uint8_t data)
+int zmsSave(uint32_t id, uint8_t data)
 {
     int err = zms_write(&zms, id, &data, 1);
 
@@ -117,7 +119,7 @@ void zmsSave(uint32_t id, uint8_t data)
  * @param default_value Значение по умолчанию, если запись не найдена
  * @return 0 при успехе, отрицательное значение при ошибке
  */
-void zmsRead(uint32_t id, uint8_t *data, uint8_t default_value)
+int zmsRead(uint32_t id, uint8_t *data, uint8_t default_value)
 {
 
     if (data == NULL)
@@ -127,7 +129,7 @@ void zmsRead(uint32_t id, uint8_t *data, uint8_t default_value)
     }
 
     int err = zms_read(&zms, id, data, 1);
-    if (err > 0)
+    if (err == 1)
     {
         printk("ZMS read (id: %lu): %u\n", (unsigned long)id, *data);
         return 0;

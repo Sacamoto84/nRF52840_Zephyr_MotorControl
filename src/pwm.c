@@ -1,11 +1,7 @@
 #include "define.h"
 
-extern uint8_t duty_cycle;
-extern bool motor_on;
-extern bool pwm_active;
-
 #define PWM_CHANNEL 0
-#define PWM_PERIOD_NS 20000000 // 50 Hz
+#define PWM_PERIOD_NS 1000000   // 1 kHz
 
 const struct device *pwm_dev;
 
@@ -36,8 +32,8 @@ void motor_set_pwm(uint8_t duty)
 
 void motor_toggle(void)
 {
-    motor_on = !motor_on;
-    printk("Motor %s at %d%%\n", global_motor_on ? "ON" : "OFF", duty_cycle);
-    motor_set_pwm(motor_on ? duty_cycle : 0);
+    global_motor_on = !global_motor_on;
+    printk("Motor %s at %d%%\n", global_motor_on ? "ON" : "OFF", global_duty_cycle);
+    motor_set_pwm(global_motor_on ? global_duty_cycle : 0);
     nvs_save_settings();
 }

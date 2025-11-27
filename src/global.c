@@ -4,8 +4,10 @@
 
 extern struct zms_fs zms;
 
-extern void zmsSave(uint32_t id, uint8_t data);
-extern void zmsRead(uint32_t id, uint8_t *data, uint8_t define);
+extern int zmsSave(uint32_t id, uint8_t data);
+extern int zmsRead(uint32_t id, uint8_t *data, uint8_t define);
+
+bool global_cpu_active = false;
 
 bool global_motor_on = false;
 bool global_pwm_active = false;

@@ -114,7 +114,7 @@ extern "C" void button_isr(const struct device *dev, struct gpio_callback *cb, u
     // int button_value = gpio_pin_get_dt(&button);
     // printk(RESET "Now %lld pin: %d\n " RESET, now, button_value);
 
-    b.tick();
+    //b.tick();
 
     // buttonLoop();
 
