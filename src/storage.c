@@ -9,16 +9,18 @@
 #define NVS_PARTITION storage
 #define NVS_PARTITION_DEVICE FIXED_PARTITION_DEVICE(NVS_PARTITION)
 #define NVS_PARTITION_OFFSET FIXED_PARTITION_OFFSET(NVS_PARTITION)
-#define NVS_ID_DUTY_CYCLE 1
-#define NVS_ID_MOTOR_STATE 2
 
-static struct zms_fs zms;
+struct zms_fs zms;
 
 extern uint8_t duty_cycle;
 extern bool motor_on;
 extern bool pwm_active;
 
 // ==================== NVS функции ====================
+/**
+ * @brief Инициализация ZMS хранилища
+ * @return 0 при успехе, отрицательное значение при ошибке
+ */
 int nvs_init_storage(void)
 {
     int err;
@@ -64,47 +66,92 @@ int nvs_init_storage(void)
     }
 
     printk("  Free space: %d bytes\n", zms_calc_free_space(&zms));
-
     printk("NVS mounted successfully\n");
     return 0;
 }
 
-void nvs_save_settings(void)
+/**
+ * @brief Сохранить байт данных в ZMS
+ * @param id Идентификатор записи
+ * @param data Данные для сохранения
+ * @return 0 при успехе, отрицательное значение при ошибке
+ */
+void zmsSave(uint32_t id, uint8_t data)
 {
-    int err;
+    int err = zms_write(&zms, id, &data, 1);
 
-    err = zms_write(&zms, NVS_ID_DUTY_CYCLE, &duty_cycle, sizeof(duty_cycle));
     if (err < 0)
-        printk("Failed to write duty cycle to NVS: %d\n", err);
+    {
+        printk("ZMS write error (id: %lu): %d - ", (unsigned long)id, err);
 
-    err = zms_write(&zms, NVS_ID_MOTOR_STATE, &motor_on, sizeof(motor_on));
-    if (err < 0)
-        printk("Failed to write motor state to NVS: %d\n", err);
+        switch (err)
+        {
+        case -EACCES:
+            printk("not initialized\n");
+            break;
+        case -ENXIO:
+            printk("device error\n");
+            break;
+        case -EIO:
+            printk("read/write error\n");
+            break;
+        case -EINVAL:
+            printk("invalid length\n");
+            break;
+        case -ENOSPC:
+            printk("no space left\n");
+            break;
+        default:
+            printk("unknown error\n");
+            break;
+        }
+    }
 
-    printk("Settings saved: duty=%d%%, motor=%s\n", duty_cycle, motor_on ? "ON" : "OFF");
+    return err;
 }
 
-void nvs_load_settings(void)
+/**
+ * @brief Прочитать байт данных из ZMS
+ * @param id Идентификатор записи
+ * @param data Указатель для сохранения прочитанных данных
+ * @param default_value Значение по умолчанию, если запись не найдена
+ * @return 0 при успехе, отрицательное значение при ошибке
+ */
+void zmsRead(uint32_t id, uint8_t *data, uint8_t default_value)
 {
-    int err;
 
-    err = zms_read(&zms, NVS_ID_DUTY_CYCLE, &duty_cycle, sizeof(duty_cycle));
-    if (err > 0)
+    if (data == NULL)
     {
-        printk("Loaded duty cycle: %d%%\n", duty_cycle);
-    }
-    else
-    {
-        printk("Using default duty: %d%%\n", duty_cycle);
+        printk("ZMS read error: null pointer\n");
+        return -EINVAL;
     }
 
-    err = zms_read(&zms, NVS_ID_MOTOR_STATE, &motor_on, sizeof(motor_on));
+    int err = zms_read(&zms, id, data, 1);
     if (err > 0)
     {
-        printk("Loaded motor state: %s\n", motor_on ? "ON" : "OFF");
+        printk("ZMS read (id: %lu): %u\n", (unsigned long)id, *data);
+        return 0;
     }
-    else
+
+    // Обработка ошибок
+    printk("ZMS read error (id: %lu): %d - ", (unsigned long)id, err);
+
+    switch (err)
     {
-        motor_on = false;
+    case -EACCES:
+        printk("not initialized\n");
+        break;
+    case -EIO:
+        printk("read/write error\n");
+        break;
+    case -ENOENT:
+        printk("entry not found, using default: %u\n", default_value);
+        break;
+    default:
+        printk("unknown error\n");
+        break;
     }
+
+    *data = default_value;
+    return err;
 }

@@ -14,17 +14,17 @@ void motor_set_pwm(uint8_t duty)
 {
     if (duty > 100) duty = 100;
 
-    if (duty == 0 || !motor_on) {
+    if (duty == 0 || !global_motor_on) {
         pwm_set(pwm_dev, PWM_CHANNEL, 0, 0, 0);
-        if (pwm_active) {
+        if (global_pwm_active) {
             pm_device_action_run(pwm_dev, PM_DEVICE_ACTION_SUSPEND);
-            pwm_active = false;
+            global_pwm_active = false;
             printk("PWM suspended\n");
         }
     } else {
-        if (!pwm_active) {
+        if (!global_pwm_active) {
             pm_device_action_run(pwm_dev, PM_DEVICE_ACTION_RESUME);
-            pwm_active = true;
+            global_pwm_active = true;
             printk("PWM resumed\n");
         }
 
@@ -37,7 +37,7 @@ void motor_set_pwm(uint8_t duty)
 void motor_toggle(void)
 {
     motor_on = !motor_on;
-    printk("Motor %s at %d%%\n", motor_on ? "ON" : "OFF", duty_cycle);
+    printk("Motor %s at %d%%\n", global_motor_on ? "ON" : "OFF", duty_cycle);
     motor_set_pwm(motor_on ? duty_cycle : 0);
     nvs_save_settings();
 }

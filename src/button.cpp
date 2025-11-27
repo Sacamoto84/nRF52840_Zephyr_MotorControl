@@ -20,30 +20,62 @@ uButton b(button);
 
 extern "C" void buttonLoop()
 {
-    if (b.tick())
+    // if (b.tick())
+    // {
+    //     if (b.press())
+    //         printk("Press\n");
+    //     if (b.click())
+    //         printk("Click\n");
+    //     if (b.hold())
+    //         printk("Hold\n");
+    //     if (b.releaseHold())
+    //         printk("ReleaseHold\n");
+    //     if (b.step())
+    //         printk("Step\n");
+    //     if (b.releaseStep())
+    //         printk("releaseStep\n");
+    //     if (b.release())
+    //         printk("Release\n");
+    //     if (b.hasClicks())
+    //     {
+    //         printk("Clicks: %d\n", b.getClicks());
+    //     }
+    //     if (b.timeout())
+    //         printk("Timeout\n");
+    // }
+
+    b.tick();
+
+
+    if (b.press())
+        printk("Press\n");
+    if (b.click())
+        printk("Click\n");
+    if (b.hold())
+        printk("Hold\n");
+    if (b.releaseHold())
+        printk("ReleaseHold\n");
+    if (b.step())
+        printk("Step\n");
+    if (b.releaseStep())
+        printk("releaseStep\n");
+    if (b.release())
+        printk("Release\n");
+    if (b.hasClicks())
     {
-        if (b.press())
-            printk("Press\n");
-        if (b.click())
-            printk("Click\n");
-        if (b.hold())
-            printk("Hold\n");
-        if (b.releaseHold())
-            printk("ReleaseHold\n");
-        if (b.step())
-            printk("Step\n");
-        if (b.releaseStep())
-            printk("releaseStep\n");
-        if (b.release())
-            printk("Release\n");
-        if (b.hasClicks())
-        {
-            printk("Clicks: %d\n", b.getClicks());
-        }
-        if (b.timeout())
-            printk("Timeout\n");
+        printk("Clicks: %d\n", b.getClicks());
     }
+    if (b.timeout())
+        printk("Timeout\n");
+
+
 }
+
+
+
+
+
+
 
 static void long_press_handler(void)
 {
@@ -76,16 +108,15 @@ void double_click_timeout_work(struct k_work *work)
 extern "C" void button_isr(const struct device *dev, struct gpio_callback *cb, uint32_t pins)
 {
 
+    printk(BOLD FG(82) "\n%lld: Button ISR \033[0m %d\n", k_uptime_get(), gpio_pin_get_dt(&button));
 
-    printk(BOLD FG(82) "\n%lld: Button ISR \033[0m %d\n",  k_uptime_get(), gpio_pin_get_dt(&button));
-
-    //int64_t now = k_uptime_get();
-    //int button_value = gpio_pin_get_dt(&button);
-    //printk(RESET "Now %lld pin: %d\n " RESET, now, button_value);
+    // int64_t now = k_uptime_get();
+    // int button_value = gpio_pin_get_dt(&button);
+    // printk(RESET "Now %lld pin: %d\n " RESET, now, button_value);
 
     b.tick();
 
-    //buttonLoop();
+    // buttonLoop();
 
     // if (button_value == 1)
     // {

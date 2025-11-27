@@ -75,9 +75,9 @@ extern void ble_start_adv(void);
 
 
 //global.c
-extern uint8_t duty_cycle;
-extern bool motor_on;
-extern bool pwm_active;
+extern uint8_t global_duty_cycle;
+extern bool global_motor_on;
+extern bool global_pwm_active;
 
 /**
  * @}

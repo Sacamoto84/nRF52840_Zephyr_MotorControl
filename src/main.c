@@ -66,7 +66,7 @@ int main(void)
     }
     else
     {
-        nvs_load_settings();
+        //nvs_load_settings();
     }
 
     // Инициализация PWM

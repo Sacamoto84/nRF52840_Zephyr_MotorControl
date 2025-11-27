@@ -286,8 +286,8 @@ class uButtonVirt {
         if (_press == pressed) {
             _deb = 0;
         } else {
-            if (!_deb) _deb = uint8_t(k_uptime_get());
-            else if (uint8_t(uint8_t(k_uptime_get()) - _deb) >= UB_DEB_TIME) _press = pressed;
+            if (!_deb) _deb = k_uptime_get();
+            else if ((k_uptime_get() - _deb) >= UB_DEB_TIME) _press = pressed;
         }
         return poll(_press);
     }
@@ -383,15 +383,15 @@ class uButtonVirt {
     }
 
    private:
-    uint16_t _tmr = 0;
-    uint8_t _deb = 0;
+    int64_t _tmr = 0;
+    int64_t  _deb = 0;
     uint8_t _press;
     uint8_t _steps;
     State _state;
     uint8_t _clicks;
 
-    uint16_t _getTime() {
-        return uint16_t(k_uptime_get()) - _tmr;
+    int64_t _getTime() {
+        return k_uptime_get() - _tmr;
     }
     void _resetTime() {
         _tmr = k_uptime_get();
