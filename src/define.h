@@ -23,6 +23,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+// Удобные макросы (можно положить в отдельный .h)
+#define CLRscr "\033[2J\033[H"
+#define FG(color) "\033[38;5;" #color "m"
+#define BG(color) "\033[48;5;" #color "m"
+#define RESET "\033[0m"
+#define BOLD "\033[1m"
+#define UNDERLINE "\033[4m"
+
 #define PWM_NODE DT_NODELABEL(pwm0)
 
 // Состояние кнопки

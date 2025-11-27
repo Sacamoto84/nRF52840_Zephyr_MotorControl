@@ -4,13 +4,7 @@
 //"NRF52832_XXAA"
 // JLinkGDBServer -device NRF52832_XXAA -if SWD -speed 6000 -autoconnect 1 -nogui
 
-// Удобные макросы (можно положить в отдельный .h)
-#define CLRscr "\033[2J\033[H"
-#define FG(color) "\033[38;5;" #color "m"
-#define BG(color) "\033[48;5;" #color "m"
-#define RESET "\033[0m"
-#define BOLD "\033[1m"
-#define UNDERLINE "\033[4m"
+
 
 int main(void)
 {
@@ -51,14 +45,14 @@ int main(void)
 
     printk("\n=== Motor Controller Starting ===\n");
 
-    // Настройка выходов P0.10 и P0.29
-    nrf_gpio_cfg_output(10);
-    nrf_gpio_pin_set(10);
-    printk("P0.10 set HIGH\n");
+    // // Настройка выходов P0.10 и P0.29
+    // nrf_gpio_cfg_output(10);
+    // nrf_gpio_pin_set(10);
+    // printk("P0.10 set HIGH\n");
 
-    nrf_gpio_cfg_output(29);
-    nrf_gpio_pin_set(29);
-    printk("P0.29 set HIGH\n");
+    // nrf_gpio_cfg_output(29);
+    // nrf_gpio_pin_set(29);
+    // printk("P0.29 set HIGH\n");
 
     // Инициализация NVS
     err = nvs_init_storage();

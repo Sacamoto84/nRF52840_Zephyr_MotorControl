@@ -15,7 +15,7 @@
     buttons {
         compatible = "gpio-keys";
         button0: button_0 {
-            gpios = <&gpio0 9 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+            gpios = <&gpio0 2 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
             label = "Motor Button";
             status = "okay";
         };
@@ -24,8 +24,8 @@
     outputs {
         compatible = "gpio-leds";
         output1: output_1 {
-            gpios = <&gpio0 29 GPIO_ACTIVE_HIGH>; 
-            label = "Output P0.29";
+            gpios = <&gpio0 9 GPIO_ACTIVE_HIGH>; 
+            label = "Output P0.09";
         };
     };
 
