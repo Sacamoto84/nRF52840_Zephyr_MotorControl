@@ -8,6 +8,9 @@ extern void button_isr();
 
 extern void buttonLoop();
 
+extern int adc_init(void);
+extern int16_t adc_read_registers(void);
+
 int main(void)
 {
     printk(CLRscr); // очистить экран
@@ -47,6 +50,8 @@ int main(void)
 
     printk("\n=== Motor Controller Starting ===\n");
 
+    adc_init();
+
     // // Настройка выходов P0.10 и P0.29
     // nrf_gpio_cfg_output(10);
     // nrf_gpio_pin_set(10);
@@ -64,7 +69,7 @@ int main(void)
     }
     else
     {
-        //nvs_load_settings();
+        // nvs_load_settings();
     }
 
     // Инициализация PWM
@@ -129,17 +134,18 @@ int main(void)
     // pm_policy_state_lock_put(PM_STATE_STANDBY, PM_ALL_SUBSTATES);
     // pm_policy_state_lock_put(PM_STATE_SUSPEND_TO_IDLE, PM_ALL_SUBSTATES);
 
-
     // Main loop - просто спим, всё управляется прерываниями
     while (1)
     {
-
+        int raw = adc_read_registers();
+        float Vbat = raw * 0.6 * 5 / 4096;
+        printk("\n" FG(51) "► raw: %d Vbat = %.3f" RESET, raw, Vbat);
         buttonLoop();
         // printk("\r" FG(51) "► Uptime: %6u сек" RESET, k_uptime_get_32() / 1000);
         k_sleep(K_MSEC(20));
 
-        //k_sleep(K_FOREVER);
-        // k_sleep(K_SECONDS(1));
+        // k_sleep(K_FOREVER);
+        //  k_sleep(K_SECONDS(1));
     }
 
     return 0;

@@ -33,7 +33,29 @@
         bt-tx-power = <(-20)>;
     }; 
 
+    analog_input {
+        compatible = "analog-input";
+        io-channels = <&adc 5>;
+    };
+
 };
+
+/* ADC конфигурация - ОДИН РАЗ */
+&adc {
+    status = "okay";
+    #address-cells = <1>;
+    #size-cells = <0>;
+    
+    channel@5 {
+        reg = <5>;
+        zephyr,gain = "ADC_GAIN_1_6";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <40>;
+        zephyr,input-positive = <NRF_SAADC_AIN5>;
+    };
+};
+
+
 
 &reg1 {
     status = "okay";
@@ -61,11 +83,6 @@
 
 &gpio0 {
     status = "okay";
-};
-
-
-&adc {
-    status = "disabled";               
 };
 
 &gpiote {
